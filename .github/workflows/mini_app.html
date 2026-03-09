@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Prep Batches Web App</title>
+    <!-- Tailwind CSS for rapid styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Telegram Web App Script (Crucial for integration) -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        /* Custom Gradient Background from the screenshot */
+        body {
+            background: linear-gradient(180deg, #ffb6c1 0%, #ffe4b5 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding-bottom: 70px;
+        }
+        
+        /* Hide scrollbar for tabs */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Active Tab Styling */
+        .tab-active {
+            border-bottom: 3px solid white;
+            font-weight: bold;
+            color: white;
+        }
+        .tab-inactive {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Card Custom Shadows and Colors */
+        .batch-card {
+            background-color: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255,255,255,0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s;
+        }
+        .batch-card:active {
+            transform: scale(0.98);
+        }
+
+        .badge-purple {
+            background-color: #8b5cf6;
+            color: white;
+            border-radius: 10px 0 10px 0;
+            padding: 5px 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge-brown {
+            background-color: rgba(168, 162, 158, 0.9);
+            color: white;
+            border-radius: 10px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- TOP HEADER -->
+    <div class="pt-4 pb-2 px-4 flex items-center justify-between sticky top-0 z-50 bg-gradient-to-r from-pink-300 to-pink-200 shadow-sm">
+        <button class="text-gray-800 text-xl"><i class="fas fa-bars"></i></button>
+        <div class="flex items-center space-x-2 bg-pink-100/50 rounded-full px-4 py-1">
+            <div class="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center font-serif italic font-bold">AK</div>
+            <span class="font-bold text-xl">Akki Batches</span>
+        </div>
+        <div class="w-6"></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="flex overflow-x-auto no-scrollbar px-2 py-3 bg-pink-300/60 sticky top-16 z-40">
+        <button onclick="switchTab('jee')" class="flex-shrink-0 flex flex-col items-center justify-center w-20 tab-inactive" id="tab-jee">
+            <i class="fas fa-user-graduate mb-1 text-xl"></i>
+            <span class="text-sm">IIT JEE</span>
+        </button>
+        <button onclick="switchTab('neet')" class="flex-shrink-0 flex flex-col items-center justify-center w-20 tab-active" id="tab-neet">
+            <i class="fas fa-user-md mb-1 text-xl"></i>
+            <span class="text-sm">NEET</span>
+        </button>
+        <button onclick="switchTab('boards')" class="flex-shrink-0 flex flex-col items-center justify-center w-20 tab-inactive" id="tab-boards">
+            <i class="fas fa-school mb-1 text-xl"></i>
+            <span class="text-sm">Boards</span>
+        </button>
+        <button onclick="switchTab('gate')" class="flex-shrink-0 flex flex-col items-center justify-center w-20 tab-inactive" id="tab-gate">
+            <i class="fas fa-drafting-compass mb-1 text-xl"></i>
+            <span class="text-sm">GATE</span>
+        </button>
+        <button onclick="switchTab('others')" class="flex-shrink-0 flex flex-col items-center justify-center w-20 tab-inactive" id="tab-others">
+            <i class="fas fa-list mb-1 text-xl"></i>
+            <span class="text-sm">Others</span>
+        </button>
+    </div>
+
+    <!-- CONTENT AREA (GRID) -->
+    <div class="p-4 grid grid-cols-2 gap-4" id="content-grid">
+        <!-- Content will be injected here by JS -->
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="fixed bottom-0 left-0 w-full bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] flex justify-between items-center pb-safe pt-2 px-2 z-50 text-xs text-gray-500 font-medium">
+        <button class="flex flex-col items-center p-2 text-blue-500 relative">
+            <div class="absolute -top-3 bg-blue-100 w-12 h-10 rounded-xl -z-10"></div>
+            <i class="fas fa-layer-group text-xl mb-1 text-blue-600"></i>
+            <span class="text-blue-600">Batches</span>
+        </button>
+        <button class="flex flex-col items-center p-2">
+            <i class="fas fa-puzzle-piece text-xl mb-1 text-gray-700"></i>
+            <span>Practice</span>
+        </button>
+        <button class="flex flex-col items-center p-2" onclick="closeWebApp()">
+            <i class="fas fa-home text-xl mb-1 text-gray-700"></i>
+            <span>Bot Home</span>
+        </button>
+        <button class="flex flex-col items-center p-2">
+            <i class="fas fa-laptop text-xl mb-1 text-gray-700"></i>
+            <span>Study Stuff</span>
+        </button>
+        <button class="flex flex-col items-center p-2">
+            <i class="fas fa-comments text-xl mb-1 text-gray-700"></i>
+            <span>Contact US</span>
+        </button>
+    </div>
+
+    <script>
+        // Data for different tabs based on your Universal Links
+        const batchData = {
+            'neet': [
+                { title: '11th - NEET', medium: 'Hinglish', color: 'bg-purple-500', link: 'https://graph.org/11th---NEET-01-24' },
+                { title: '12th - NEET', medium: 'Hinglish', color: 'bg-purple-500', link: 'https://graph.org/12th---NEET-01-24' },
+                { title: 'Dropper NEET', medium: 'Hinglish', color: 'bg-purple-500', link: 'https://graph.org/12th---NEET-01-24' },
+                { title: 'BSC Nursing', medium: 'English/Hindi', color: 'bg-purple-500', link: 'https://graph.org/BSC-Nursing-01-25' }
+            ],
+            'jee': [
+                { title: '11th IIT JEE', medium: 'Hinglish', color: 'bg-purple-500', link: 'https://graph.org/11th-IIT-JEE-01-25' },
+                { title: '12th IIT JEE', medium: 'Hinglish', color: 'bg-purple-500', link: 'https://graph.org/12th-IIT-JEE-01-25' },
+                { title: 'IIT JEE Dropper', medium: 'Hinglish', color: 'bg-purple-500', link: 'https://graph.org/IIT-JEE-Dropper-01-25' }
+            ],
+            'boards': [
+                { title: 'CBSCE-10Th', medium: 'English', color: 'bg-purple-500', link: 'https://graph.org/CBSCE-10Th-Board-01-25' },
+                { title: 'Sci-12-CBSCE', medium: 'Hinglish', color: 'bg-purple-500', link: 'https://graph.org/Science-12-CBSCE-01-25' },
+                { title: 'Com-12-CBSCE', medium: 'Hinglish', color: 'bg-purple-500', link: 'https://graph.org/COMERCE-12Th-CBSCE-01-25' },
+                { title: 'CA FOUNDATION', medium: 'English', color: 'bg-purple-500', link: 'https://graph.org/CA-FOUNDATION-01-30' },
+                { title: 'CA INTERMIDIATE', medium: 'English', color: 'bg-purple-500', link: 'https://graph.org/Ca-Intermidiate-02-20' },
+                { title: 'CA FINAL 🌟', medium: 'English', color: 'bg-purple-500', link: 'https://graph.org/CA-FINAL-03-08' }
+            ],
+            'gate': [
+                { title: 'CIVIL GATE', medium: 'Bilingual', color: 'bg-purple-500', link: 'https://graph.org/CIVIL-GATE-01-25' },
+                { title: 'MECHANICAL', medium: 'Bilingual', color: 'bg-purple-500', link: 'https://graph.org/MECHANICAL-01-25-2' },
+                { title: 'ELECTRICAL', medium: 'Bilingual', color: 'bg-purple-500', link: 'https://graph.org/ELECTRICAL-01-25' },
+                { title: 'Electronics & Com', medium: 'Bilingual', color: 'bg-purple-500', link: 'https://graph.org/Electronics--Communication-01-25' }
+            ],
+            'others': [
+                { title: 'UPSC', medium: 'Bilingual', color: 'bg-purple-500', link: 'https://graph.org/UPSC-02-01' },
+                { title: 'UPPSC', medium: 'Bilingual', color: 'bg-purple-500', link: 'https://graph.org/UPPSC-02-05' },
+                { title: 'DEFENCE', medium: 'Bilingual', color: 'bg-purple-500', link: 'https://graph.org/Defence-01-31' },
+                { title: 'Banking Batch 🏧', medium: 'Bilingual', color: 'bg-purple-500', link: 'https://graph.org/Banking-01-30' },
+                { title: 'RRB', medium: 'Bilingual', color: 'bg-purple-500', link: 'https://graph.org/RRB-Batches-02-12' },
+                { title: 'MBA', medium: 'Bilingual', color: 'bg-purple-500', link: 'https://graph.org/MBA-Batches-03-09' }
+            ]
+        };
+
+        const tg = window.Telegram.WebApp;
+
+        function renderCards(tabName) {
+            const container = document.getElementById('content-grid');
+            container.innerHTML = ''; // Clear current
+
+            const items = batchData[tabName] || [];
+            
+            if (items.length === 0) {
+                container.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-10">No batches available in this category yet.</div>`;
+                return;
+            }
+            
+            items.forEach(item => {
+                // When clicked, it sends the link to the bot or opens it directly inside the webapp browser
+                const cardHTML = `
+                    <div onclick="tg.openLink('${item.link}')" class="batch-card cursor-pointer">
+                        <div class="h-28 flex flex-col">
+                            <div class="flex justify-end">
+                                <span class="badge-purple">${item.title}</span>
+                            </div>
+                            <div class="flex-grow flex items-center justify-center px-2">
+                                <i class="fas fa-book-open text-3xl text-purple-700/20"></i>
+                            </div>
+                            <div class="p-2">
+                                <span class="badge-brown">${item.medium}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        function switchTab(tabName) {
+            // Update Tab UI
+            ['jee', 'neet', 'boards', 'gate', 'others'].forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if (t === tabName) {
+                    el.classList.remove('tab-inactive');
+                    el.classList.add('tab-active');
+                } else {
+                    el.classList.remove('tab-active');
+                    el.classList.add('tab-inactive');
+                }
+            });
+
+            // Update Content
+            renderCards(tabName);
+            
+            // Provide Haptic Feedback
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.selectionChanged();
+            }
+        }
+
+        function closeWebApp() {
+            if (tg) {
+                tg.close();
+            }
+        }
+
+        // Initialize Telegram WebApp setup
+        if (tg) {
+            tg.ready();
+            tg.expand(); // Opens it in full screen height
+            // Setup Main Button (Optional - you can hide it if not needed)
+            tg.MainButton.text = "Close App";
+            tg.MainButton.show();
+            Telegram.WebApp.onEvent('mainButtonClicked', function(){
+                tg.close();
+            });
+        }
+
+        // Load default tab
+        switchTab('neet');
+    </script>
+</body>
+</html>
+
+
